@@ -74,3 +74,73 @@ The application follows a **classic 3-tier model**:
 sudo yum install nginx -y
 sudo systemctl enable nginx
 sudo systemctl start nginx
+
+Upload form.html to /usr/share/nginx/html/.
+
+Configure reverse proxy in /etc/nginx/nginx.conf:
+
+location ~ \.php$ {
+    proxy_pass http://<APP-SERVER-PRIVATE-IP>;
+}
+
+
+Restart Nginx:
+
+sudo systemctl restart nginx
+sudo systemctl reload nginx
+
+🧩 App Server
+sudo yum install php php-mysqlnd mariadb105-server -y
+sudo systemctl enable php-fpm
+sudo systemctl start php-fpm
+
+
+Upload submit.php to /usr/share/nginx/html/.
+
+🧩 Database Server
+sudo yum install mariadb105-server -y
+sudo systemctl enable mariadb
+sudo systemctl start mariadb
+
+
+Create database and user:
+
+CREATE DATABASE studentdb;
+CREATE USER 'rushi'@'<APP-SERVER-PRIVATE-IP>' IDENTIFIED BY 'dase';
+GRANT ALL PRIVILEGES ON studentdb.* TO 'rushi'@'<APP-SERVER-PRIVATE-IP>';
+FLUSH PRIVILEGES;
+
+
+📝 Note: Delete the NAT Gateway and release the Elastic IP to avoid unnecessary charges.
+
+✅ Verification
+
+Open your browser and go to:
+http://<WEB-SERVER-PUBLIC-IP>/form.html
+
+Fill and submit the registration form.
+
+Check database entries:
+
+SELECT * FROM students;
+
+
+If data appears correctly → Deployment Successful 🎉
+
+🔮 Future Enhancements
+
+Add Elastic Load Balancer (ELB) for high availability
+
+Integrate SSL/TLS via AWS Certificate Manager
+
+Automate deployment using Terraform / CloudFormation
+
+Monitor infrastructure using AWS CloudWatch
+
+Add auto-scaling for handling dynamic workloads
+
+
+👨‍💻 Author
+
+Siddhesh Shinde
+Cloud Computing Enthusiast | AWS Learner
